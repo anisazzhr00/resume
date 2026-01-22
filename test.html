@@ -1,0 +1,710 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Globe, Map, Layers, Terminal, Cpu, Satellite, Wifi, Crosshair, 
+  Database, Activity, Radio, Share2, FileText, ChevronRight, 
+  AlertCircle, Code2, Box, Power, Lock, CheckCircle2, RotateCw,
+  MessageSquare, Send, X, User, Hash, ExternalLink
+} from 'lucide-react';
+
+/**
+ * --- SUB-COMPONENTS (GLOBAL) ---
+ */
+
+// 1. Custom Crosshair Cursor (Engineering Grade)
+const SurveyCursor = () => {
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [clicking, setClicking] = useState(false);
+
+  useEffect(() => {
+    const move = (e) => setPos({ x: e.clientX, y: e.clientY });
+    const down = () => setClicking(true);
+    const up = () => setClicking(false);
+    
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mousedown', down);
+    window.addEventListener('mouseup', up);
+    return () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mousedown', down);
+      window.removeEventListener('mouseup', up);
+    };
+  }, []);
+
+  return (
+    <div 
+      className="fixed pointer-events-none z-[9999] hidden md:block mix-blend-difference"
+      style={{ left: pos.x, top: pos.y, transform: 'translate(-50%, -50%)' }}
+    >
+      <div className={`relative transition-all duration-75 ${clicking ? 'scale-75' : 'scale-100'}`}>
+        <div className="w-8 h-8 border border-cyan-500 rounded-full flex items-center justify-center bg-cyan-500/10">
+          <div className="w-0.5 h-full bg-cyan-500/50 absolute top-0 left-1/2 -translate-x-1/2"></div>
+          <div className="h-0.5 w-full bg-cyan-500/50 absolute top-1/2 left-0 -translate-y-1/2"></div>
+        </div>
+        <div className="absolute top-full left-full pl-2 pt-1 font-mono text-[9px] text-cyan-400 whitespace-nowrap bg-black/80 px-1 border-l-2 border-cyan-500">
+          <div>X: {pos.x.toFixed(1)}</div>
+          <div>Y: {pos.y.toFixed(1)}</div>
+        </div>
+        <div className="absolute top-1/2 left-8 w-screen h-[1px] bg-cyan-500/10 border-t border-dashed border-cyan-500/20"></div>
+        <div className="absolute top-1/2 right-8 w-screen h-[1px] bg-cyan-500/10 border-t border-dashed border-cyan-500/20"></div>
+        <div className="absolute left-1/2 top-8 h-screen w-[1px] bg-cyan-500/10 border-l border-dashed border-cyan-500/20"></div>
+        <div className="absolute left-1/2 bottom-8 h-screen w-[1px] bg-cyan-500/10 border-l border-dashed border-cyan-500/20"></div>
+      </div>
+    </div>
+  );
+};
+
+// 2. Background Grid System (Alive)
+const ActiveGrid = () => (
+  <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    {/* Moving Grid Floor - Perspective optimized for depth */}
+    <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f3ff08_1px,transparent_1px),linear-gradient(to_bottom,#00f3ff08_1px,transparent_1px)] bg-[size:60px_60px] [transform:perspective(1000px)_rotateX(60deg)_translateY(-100px)_translateZ(-200px)] animate-grid-flow opacity-40"></div>
+    {/* Vignette */}
+    <div className="absolute inset-0 bg-radial-gradient from-transparent via-[#05050590] to-[#050505]"></div>
+    {/* Scanline Effect */}
+    <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_50%,#000_50%)] bg-[size:100%_4px] opacity-10 pointer-events-none z-50"></div>
+  </div>
+);
+
+// 3. Communications Uplink Module (WhatsApp Integration - Updated)
+const CommModule = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [visitorName, setVisitorName] = useState('');
+  const [messageType, setMessageType] = useState('COLLABORATION'); // COLLABORATION, RECRUITMENT, GENERAL
+  const [message, setMessage] = useState('');
+
+  const handleSend = (e) => {
+    e.preventDefault();
+    // Format message for technical feel
+    const formattedMessage = `
+*:: GEODETIC CONSOLE UPLINK ::*
+---------------------------
+*SENDER ID:* ${visitorName || 'ANONYMOUS'}
+*TYPE:* ${messageType}
+---------------------------
+*PAYLOAD:*
+${message}
+---------------------------
+*TIMESTAMP:* ${new Date().toLocaleString()}
+*STATUS:* REQUESTING UPLINK
+    `.trim();
+
+    // Updated Target Number
+    const phoneNumber = "6289522470506"; 
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(formattedMessage)}`;
+    window.open(url, '_blank');
+    setIsOpen(false);
+  };
+
+  return (
+    <>
+      {/* Floating Activator */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className={`fixed bottom-8 right-8 z-[100] group flex items-center gap-2 p-4 bg-[#050505] border border-cyan-500/50 rounded-full hover:bg-cyan-900/20 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(0,243,255,0.4)] transition-all duration-300 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
+      >
+        <div className="relative">
+          <MessageSquare className="text-cyan-400 group-hover:text-white transition-colors" size={24} />
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+        </div>
+        <span className="text-[10px] font-mono text-cyan-400 font-bold hidden group-hover:block animate-in slide-in-from-right-2">
+          INIT_UPLINK
+        </span>
+      </button>
+
+      {/* Engineering Console Panel */}
+      {isOpen && (
+        <div className="fixed bottom-8 right-8 z-[101] w-80 md:w-96 bg-[#080808]/95 backdrop-blur-xl border border-cyan-500/50 rounded-lg shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300">
+          {/* Header */}
+          <div className="bg-cyan-900/20 border-b border-cyan-500/30 p-3 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Terminal size={14} className="text-cyan-400" />
+              <span className="text-xs font-mono font-bold text-cyan-400 tracking-wider">SECURE_CHANNEL // WA_UPLINK</span>
+            </div>
+            <button 
+              onClick={() => setIsOpen(false)}
+              className="text-cyan-500 hover:text-red-500 transition-colors"
+            >
+              <X size={16} />
+            </button>
+          </div>
+
+          {/* Console Form */}
+          <form onSubmit={handleSend} className="p-5 space-y-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-mono text-slate-500 flex items-center gap-1">
+                <User size={10} /> SENDER_IDENTITY
+              </label>
+              <input 
+                type="text" 
+                value={visitorName}
+                onChange={(e) => setVisitorName(e.target.value)}
+                placeholder="ENTER NAME / ORG..."
+                className="w-full bg-black/50 border-b border-white/20 text-cyan-300 text-sm font-mono p-2 focus:outline-none focus:border-cyan-500 focus:bg-cyan-900/10 transition-colors placeholder:text-slate-700"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-mono text-slate-500 flex items-center gap-1">
+                <Hash size={10} /> PURPOSE_SELECTOR
+              </label>
+              <select 
+                value={messageType}
+                onChange={(e) => setMessageType(e.target.value)}
+                className="w-full bg-black/50 border-b border-white/20 text-cyan-300 text-sm font-mono p-2 focus:outline-none focus:border-cyan-500 focus:bg-cyan-900/10 transition-colors"
+              >
+                <option value="COLLABORATION">PROJECT COLLABORATION</option>
+                <option value="RECRUITMENT">RECRUITMENT / HIRING</option>
+                <option value="GENERAL">GENERAL INQUIRY</option>
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-mono text-slate-500 flex items-center gap-1">
+                <FileText size={10} /> MESSAGE_PAYLOAD
+              </label>
+              <textarea 
+                rows="3"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="TYPE BRIEF MESSAGE..."
+                className="w-full bg-black/50 border-b border-white/20 text-cyan-300 text-sm font-mono p-2 focus:outline-none focus:border-cyan-500 focus:bg-cyan-900/10 transition-colors placeholder:text-slate-700 resize-none"
+              ></textarea>
+            </div>
+
+            <button 
+              type="submit"
+              className="w-full mt-4 bg-green-600/20 hover:bg-green-500/30 text-green-400 hover:text-green-300 border border-green-500/50 hover:border-green-400 p-3 rounded font-mono text-xs font-bold tracking-widest flex items-center justify-center gap-2 transition-all group"
+            >
+              INITIATE_WHATSAPP_LINK <ExternalLink size={14} className="group-hover:translate-x-1 transition-transform" />
+            </button>
+          </form>
+
+          {/* Footer Decor */}
+          <div className="bg-black p-2 border-t border-cyan-900/30 flex justify-between text-[8px] font-mono text-slate-600">
+            <span>DEST: +62 895-2247-0506</span>
+            <span>ENCRYPTION: E2E (WA)</span>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+/**
+ * --- LANDING PAGE (INITIALIZATION SYSTEM) ---
+ */
+const LandingPage = ({ onInitialize }) => {
+  const [logs, setLogs] = useState([]);
+  const [status, setStatus] = useState("STANDBY");
+  const [satCount, setSatCount] = useState(0);
+
+  // Simulated Boot Log
+  useEffect(() => {
+    const bootSequence = [
+      "LOADING GEODETIC KERNEL...", "CHECKING PERIPHERALS...", "MOUNTING FILESYSTEM...",
+      "CALIBRATING GNSS SENSORS...", "NETWORK UPLINK: OK"
+    ];
+    let delay = 0;
+    bootSequence.forEach((line, i) => {
+      delay += 300;
+      setTimeout(() => {
+        setLogs(prev => [...prev.slice(-4), line]);
+      }, delay);
+    });
+  }, []);
+
+  // Simulate Satellite Search when Searching
+  useEffect(() => {
+    if (status === "SEARCHING") {
+      const interval = setInterval(() => {
+        setSatCount(prev => {
+          if (prev >= 12) {
+            clearInterval(interval);
+            setStatus("LOCKED");
+            setTimeout(onInitialize, 1500); // Enter dashboard after lock
+            return 12;
+          }
+          return prev + 1;
+        });
+      }, 200);
+      return () => clearInterval(interval);
+    }
+  }, [status, onInitialize]);
+
+  const handleInitialize = () => {
+    if (status === "STANDBY") {
+      setStatus("SEARCHING");
+    }
+  };
+
+  return (
+    <div className="relative z-50 min-h-screen flex flex-col items-center justify-center text-center p-6">
+      <div className="max-w-2xl w-full relative">
+        {/* Central HUD Circle */}
+        <div className="relative w-64 h-64 mx-auto mb-12 flex items-center justify-center group">
+          <div className={`absolute inset-0 rounded-full border border-cyan-500/30 ${status === "SEARCHING" ? "animate-[spin_2s_linear_infinite]" : "animate-[spin_10s_linear_infinite]"}`}></div>
+          <div className={`absolute inset-4 rounded-full border border-dashed border-cyan-500/20 ${status === "SEARCHING" ? "animate-[spin_3s_linear_infinite_reverse]" : "animate-[spin_15s_linear_infinite_reverse]"}`}></div>
+          
+          {/* Main Button / Status Display */}
+          <button 
+            onClick={handleInitialize}
+            disabled={status !== "STANDBY"}
+            className={`
+              relative w-40 h-40 rounded-full flex flex-col items-center justify-center 
+              border border-cyan-500/50 bg-black/50 backdrop-blur-md transition-all duration-500
+              ${status === "STANDBY" ? "hover:scale-110 hover:border-cyan-400 hover:shadow-[0_0_30px_rgba(0,243,255,0.3)] cursor-pointer" : "cursor-default"}
+            `}
+          >
+            {status === "STANDBY" && <Power size={32} className="text-cyan-500 mb-2 animate-pulse" />}
+            {status === "SEARCHING" && <RotateCw size={32} className="text-yellow-500 mb-2 animate-spin" />}
+            {status === "LOCKED" && <Lock size={32} className="text-green-500 mb-2" />}
+            
+            <span className="font-mono font-bold text-xs tracking-widest text-white">
+              {status === "STANDBY" ? "INITIALIZE" : status === "SEARCHING" ? "ACQUIRING..." : "ACCESS GRANTED"}
+            </span>
+          </button>
+        </div>
+
+        {/* System Logs & Stats */}
+        <div className="grid grid-cols-2 gap-4 font-mono text-[10px] text-cyan-500/70 border-t border-cyan-900/50 pt-6">
+          <div className="text-left space-y-1">
+            <div className="text-xs text-white font-bold mb-2">SYSTEM LOGS:</div>
+            {logs.map((log, i) => (
+              <div key={i} className="opacity-70">[{new Date().toLocaleTimeString()}] {log}</div>
+            ))}
+          </div>
+          <div className="text-right space-y-1">
+             <div className="text-xs text-white font-bold mb-2">GNSS TELEMETRY:</div>
+             <div className="flex justify-end justify-items-center gap-2">
+               <span>SATELLITES:</span>
+               <span className={`font-bold text-lg leading-none ${satCount >= 4 ? 'text-green-500' : 'text-red-500'}`}>{satCount}</span>
+             </div>
+             <div>PDOP: {status === "LOCKED" ? "1.2" : "---"}</div>
+             <div>SOLUTION: {status === "LOCKED" ? "RTK FIXED" : "FLOAT"}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * --- MAIN DASHBOARD SECTIONS ---
+ */
+
+const HeroSection = () => {
+  return (
+    <section className="min-h-screen relative flex flex-col justify-center px-6 pt-20 border-b border-white/5">
+      <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-12 gap-12 items-center">
+        
+        {/* Text Console */}
+        <div className="lg:col-span-7 space-y-8 z-10 animate-fade-in-right">
+          {/* Status Header */}
+          <div className="flex items-center gap-4 text-xs font-mono tracking-widest">
+            <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/50 text-green-400 rounded-sm">
+              <Satellite size={12} className="animate-pulse" />
+              <span>GNSS FIX: RTK</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1 bg-cyan-500/10 border border-cyan-500/50 text-cyan-400 rounded-sm">
+              <Database size={12} />
+              <span>DATA: VERIFIED</span>
+            </div>
+          </div>
+
+          {/* Main Title */}
+          <div className="relative">
+            <h1 className="text-5xl md:text-7xl font-bold text-white font-orbitron leading-tight">
+              MAPPING <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">REALITY</span>
+              <br />
+              ENGINEERING <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-400">FUTURE</span>
+            </h1>
+            <div className="absolute -left-8 top-0 h-full w-1 bg-gradient-to-b from-transparent via-cyan-500 to-transparent opacity-50 hidden md:block"></div>
+          </div>
+
+          <div className="border-l-2 border-cyan-500/30 pl-6 py-2 bg-gradient-to-r from-cyan-500/5 to-transparent">
+            <h2 className="text-2xl font-bold text-white mb-1">Siti Anisa Azzahro</h2>
+            <p className="text-cyan-400 font-mono text-sm tracking-wider mb-2">
+              {">>"} GEODETIC ENGINEERING STUDENT // UGM // SPATIAL DATA ENGINEER
+            </p>
+            <p className="text-slate-400 max-w-xl leading-relaxed">
+              Mengintegrasikan presisi <span className="text-white">GNSS</span>, kecerdasan <span className="text-white">GIS</span>, dan analisis <span className="text-white">Fotogrametri</span> untuk mengubah data spasial mentah menjadi wawasan rekayasa masa depan.
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-4 pt-4">
+            <button onClick={() => document.getElementById('projects').scrollIntoView({behavior: 'smooth'})} className="px-8 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-mono text-xs font-bold tracking-widest flex items-center gap-2 clip-path-slant transition-all hover:translate-x-1">
+              OPEN PROJECT CONSOLE <ChevronRight size={14} />
+            </button>
+            <button className="px-8 py-3 border border-slate-700 hover:border-green-500 text-slate-400 hover:text-green-400 font-mono text-xs font-bold tracking-widest flex items-center gap-2 transition-all">
+              DOWNLOAD CV <FileText size={14} />
+            </button>
+          </div>
+        </div>
+
+        {/* 3D Visualization Console */}
+        <div className="lg:col-span-5 relative h-[400px] flex items-center justify-center perspective-1000 animate-fade-in-left">
+          {/* Rotating Wireframe Globe */}
+          <div className="relative w-64 h-64 md:w-80 md:h-80 animate-[spin_20s_linear_infinite] transform-style-3d group cursor-pointer hover:pause-animation">
+            {[...Array(6)].map((_, i) => (
+              <div key={`long-${i}`} className="absolute inset-0 rounded-full border border-cyan-500/30" style={{ transform: `rotateY(${i * 30}deg)` }}></div>
+            ))}
+            {[...Array(5)].map((_, i) => (
+              <div key={`lat-${i}`} className="absolute inset-0 rounded-full border border-blue-500/20" style={{ transform: `rotateX(${i * 30 + 15}deg)` }}></div>
+            ))}
+            <div className="absolute inset-10 bg-cyan-500/10 rounded-full blur-xl animate-pulse"></div>
+            
+            {/* Orbiting Elements */}
+            <div className="absolute inset-[-40px] rounded-full border border-dashed border-slate-700 animate-[spin_15s_linear_infinite_reverse]">
+              <div className="absolute top-1/2 -right-2 w-4 h-4 bg-black border border-green-400 text-green-400 flex items-center justify-center text-[8px] shadow-[0_0_10px_lime]">
+                <Satellite size={8} />
+              </div>
+            </div>
+          </div>
+
+          {/* Floating Data Panel */}
+          <div className="absolute bottom-0 right-0 p-4 bg-black/80 backdrop-blur border border-cyan-500/30 rounded font-mono text-xs w-56 shadow-[0_0_30px_rgba(0,243,255,0.1)]">
+             <div className="flex justify-between border-b border-white/10 pb-2 mb-2">
+               <span className="text-slate-500">SYSTEM STATUS</span>
+               <span className="text-green-400 animate-pulse">OPERATIONAL</span>
+             </div>
+             <div className="space-y-1 text-cyan-300">
+               <div className="flex justify-between"><span>LAT:</span> <span>-7.770533</span></div>
+               <div className="flex justify-between"><span>LON:</span> <span>110.377541</span></div>
+               <div className="flex justify-between"><span>UTM:</span> <span>ZONE 49S</span></div>
+             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const AboutConsole = () => {
+  return (
+    <section id="about" className="py-24 px-6 border-b border-white/5 bg-[#030303]">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-end gap-4 mb-12 border-b border-cyan-900/50 pb-4">
+          <h2 className="text-4xl font-bold text-white font-orbitron">PERSONNEL_LOG</h2>
+          <span className="text-cyan-500 font-mono text-sm mb-1">// ID: SITI-UGM-2026</span>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-12">
+          {/* Text Console */}
+          <div className="space-y-6 font-mono text-sm leading-relaxed text-slate-400">
+            <p className="border-l-2 border-green-500 pl-4 text-slate-300">
+              <strong className="text-white">ACCESS GRANTED.</strong> Mahasiswa Teknik Geodesi UGM dengan fokus pada akuisisi data presisi tinggi, pemetaan partisipatif, dan analisis spasial lanjut.
+            </p>
+            <p>
+              Berpengalaman sebagai <span className="text-cyan-400">Team Leader</span> dalam proyek strategis BPN (PTSL), mengelola tim lapangan untuk pemetaan kadastral menggunakan metode GNSS Statik dan Fotogrametri UAV. 
+            </p>
+            <p>
+              Memiliki dedikasi tinggi pada akurasi data, dibuktikan dengan peran sebagai <span className="text-cyan-400">Asisten Dosen Analisis Statistik</span> dan instruktur pelatihan GIS.
+            </p>
+
+            {/* Capability Tags */}
+            <div className="flex flex-wrap gap-2 pt-4">
+               {["Critical Thinking", "Problem Solving", "Adaptability", "Leadership"].map((tag, i) => (
+                 <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 text-xs hover:bg-cyan-900/30 hover:border-cyan-500/50 hover:text-cyan-400 transition-colors cursor-default">
+                   {tag.toUpperCase()}
+                 </span>
+               ))}
+            </div>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { label: "ACADEMIC RATING", val: "3.30", unit: "GPA / 4.00", color: "text-green-400" },
+              { label: "FIELD EXPERIENCE", val: "1200+", unit: "HOURS", color: "text-cyan-400" },
+              { label: "PROJECTS LED", val: "05", unit: "COMPLETED", color: "text-yellow-400" },
+              { label: "DATA PROCESSED", val: "50+", unit: "TB RAW DATA", color: "text-purple-400" }
+            ].map((stat, i) => (
+              <div key={i} className="bg-[#080808] border border-white/10 p-6 flex flex-col justify-center items-center hover:border-cyan-500/50 transition-colors group">
+                 <div className="text-xs text-slate-500 mb-2 font-mono">{stat.label}</div>
+                 <div className={`text-3xl font-bold font-orbitron ${stat.color} group-hover:scale-110 transition-transform`}>{stat.val}</div>
+                 <div className="text-[10px] text-slate-600 mt-1">{stat.unit}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const ProjectLayerManager = () => {
+  const [activeLayer, setActiveLayer] = useState('ALL');
+  
+  const projects = [
+    {
+      title: "PTSL VILLAGE MAPPING",
+      role: "TEAM LEADER",
+      org: "BPN COOP",
+      type: "GNSS",
+      desc: "Pemetaan desa skala besar untuk sertifikasi tanah. Manajemen akuisisi data GNSS Statik jaring, pemasangan GCP/ICP, dan pemrosesan fotogrametri UAV.",
+      tech: ["GNSS Static", "Agisoft", "AutoCAD", "Team Lead"],
+      status: "COMPLETED"
+    },
+    {
+      title: "URBAN 3D MODELING",
+      role: "SURVEYOR & DRAFTER",
+      org: "PT PETAIN BUMI",
+      type: "3D",
+      desc: "Pembuatan model 3D Level of Detail (LoD) 2-3 kawasan perkotaan menggunakan data GNSS RTK dan Point Cloud untuk perencanaan tata ruang.",
+      tech: ["SketchUp", "GNSS RTK", "Point Cloud", "Surpac"],
+      status: "DELIVERED"
+    },
+    {
+      title: "SOCIAL FORESTRY",
+      role: "SURVEYOR",
+      org: "BANYUWANGI PROJECT",
+      type: "GIS",
+      desc: "Ground check batas kawasan hutan dan pemberdayaan masyarakat melalui pelatihan pemetaan partisipatif menggunakan Avenza Maps & QGIS.",
+      tech: ["QGIS", "Avenza", "Participatory Mapping", "Training"],
+      status: "DEPLOYED"
+    },
+    {
+      title: "STATISTICAL ANALYSIS",
+      role: "ASSISTANT LECTURER",
+      org: "UGM LABORATORY",
+      type: "DATA",
+      desc: "Membimbing mahasiswa dalam pengolahan data spasial, analisis statistik, dan pemrograman dasar untuk geodesi.",
+      tech: ["Python", "R Language", "Teaching", "Data Science"],
+      status: "ACTIVE"
+    }
+  ];
+
+  const filtered = activeLayer === 'ALL' ? projects : projects.filter(p => p.type === activeLayer);
+
+  return (
+    <section id="projects" className="py-24 px-6 bg-[#050505] relative">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-cyan-900/50 pb-4">
+          <div>
+            <h2 className="text-4xl font-bold text-white font-orbitron">PROJECT_LAYERS</h2>
+            <p className="text-slate-500 font-mono text-xs mt-2">// TOGGLE LAYERS TO INSPECT OPERATIONS</p>
+          </div>
+          
+          {/* Layer Toggles (Like GIS Software) */}
+          <div className="flex gap-2 mt-4 md:mt-0 flex-wrap">
+            {['ALL', 'GNSS', 'GIS', '3D', 'DATA'].map(layer => (
+              <button 
+                key={layer}
+                onClick={() => setActiveLayer(layer)}
+                className={`flex items-center gap-2 px-4 py-2 text-xs font-mono border transition-all ${
+                  activeLayer === layer 
+                  ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(0,243,255,0.2)]' 
+                  : 'bg-transparent border-white/10 text-slate-500 hover:border-white/30 hover:text-white'
+                }`}
+              >
+                <div className={`w-2 h-2 rounded-full ${activeLayer === layer ? 'bg-cyan-500' : 'bg-slate-600'}`}></div>
+                [{layer}]
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-8">
+          {filtered.map((p, i) => (
+            <div key={i} className="group relative bg-[#080808] border border-white/10 p-8 hover:border-cyan-500/50 transition-all duration-300 overflow-hidden">
+              {/* Active Stripe */}
+              <div className="absolute top-0 left-0 w-1 h-full bg-slate-800 group-hover:bg-cyan-500 transition-colors"></div>
+              
+              {/* Header */}
+              <div className="flex justify-between items-start mb-4 pl-4">
+                <div>
+                   <div className="text-[10px] font-mono text-cyan-500 mb-1">{p.org} // {p.role}</div>
+                   <h3 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors">{p.title}</h3>
+                </div>
+                <div className="px-2 py-1 bg-green-900/20 text-green-500 text-[10px] border border-green-900/50 rounded flex items-center gap-1">
+                  <CheckCircle2 size={10} /> {p.status}
+                </div>
+              </div>
+
+              {/* Desc */}
+              <p className="text-slate-400 text-sm leading-relaxed pl-4 mb-6 font-mono border-l border-white/5 group-hover:border-cyan-500/30 transition-colors">
+                {p.desc}
+              </p>
+
+              {/* Tech Stack Matrix */}
+              <div className="pl-4">
+                <div className="text-[10px] text-slate-600 mb-2">TOOLS_USED:</div>
+                <div className="flex flex-wrap gap-2">
+                  {p.tech.map((t, idx) => (
+                    <div key={idx} className="flex items-center gap-1 text-[10px] text-slate-300 bg-white/5 px-2 py-1 rounded border border-white/5 group-hover:border-cyan-500/30 transition-colors">
+                      <Code2 size={10} /> {t}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Hover Effect: Scanline */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/50 shadow-[0_0_15px_cyan] -translate-y-full group-hover:translate-y-[400px] transition-transform duration-[1.5s] pointer-events-none opacity-50"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const SkillRadar = () => {
+  const skills = [
+    { name: "GNSS PROCESSING", level: 95, icon: Satellite },
+    { name: "GIS (ArcGIS/QGIS)", level: 90, icon: Map },
+    { name: "REMOTE SENSING", level: 85, icon: Wifi },
+    { name: "3D MODELING", level: 80, icon: Box },
+    { name: "PHOTOGRAMMETRY", level: 88, icon: Layers },
+    { name: "PYTHON/SQL", level: 75, icon: Terminal },
+  ];
+
+  return (
+    <section className="py-24 px-6 bg-[#030303] border-t border-white/5">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-4xl font-bold text-white font-orbitron mb-12 text-center">TECHNICAL_CAPABILITY_MATRIX</h2>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {skills.map((s, i) => (
+            <div key={i} className="bg-[#050505] border border-white/10 p-6 relative group hover:bg-[#080808]">
+              {/* Corner Accents */}
+              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              
+              <div className="flex items-center gap-4 mb-4">
+                <div className="p-3 bg-cyan-900/10 text-cyan-400 rounded group-hover:bg-cyan-500 group-hover:text-black transition-colors">
+                  <s.icon size={24} />
+                </div>
+                <h3 className="font-bold text-white font-mono">{s.name}</h3>
+              </div>
+              
+              <div className="relative h-2 bg-slate-800 w-full overflow-hidden">
+                <div 
+                  className="absolute top-0 left-0 h-full bg-cyan-500 group-hover:shadow-[0_0_10px_cyan] transition-all duration-1000"
+                  style={{ width: `${s.level}%` }}
+                ></div>
+                {/* Grid Lines on Bar */}
+                <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_20%,#000_20%,#000_21%,transparent_21%)] bg-[size:10%_100%] opacity-30"></div>
+              </div>
+              
+              <div className="flex justify-between mt-2 text-[10px] font-mono text-slate-500">
+                <span>MODULE STATUS</span>
+                <span className="text-cyan-400">{s.level}% OPTIMIZED</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Achievement Module */}
+        <div className="mt-16 border border-yellow-500/30 bg-yellow-900/5 p-6 rounded relative overflow-hidden group hover:border-yellow-500/50 transition-colors">
+          <div className="absolute top-0 right-0 p-4 opacity-10 text-yellow-500 group-hover:opacity-20 transition-opacity">
+            <AlertCircle size={64} />
+          </div>
+          <h3 className="text-yellow-500 font-bold font-orbitron mb-4 flex items-center gap-2">
+            <AlertCircle size={18} /> SPECIAL_ACHIEVEMENTS_LOG
+          </h3>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="border-l border-yellow-500/50 pl-4">
+              <div className="text-white font-bold">HONORABLE MENTION - GEOSPATIAL COMPETITION</div>
+              <div className="text-slate-400 text-sm font-mono">BADAN INFORMASI GEOSPASIAL (BIG) 2025</div>
+            </div>
+            <div className="border-l border-yellow-500/50 pl-4">
+              <div className="text-white font-bold">INTERNATIONAL MATH OLYMPIAD MEDALIST</div>
+              <div className="text-slate-400 text-sm font-mono">PIMSO & BIG BAY BEI HONGKONG</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Footer = () => (
+  <footer className="py-12 px-6 bg-[#020202] border-t border-cyan-900/30 text-center relative overflow-hidden">
+    <div className="relative z-10">
+       <h2 className="text-2xl font-bold text-white font-orbitron mb-8">ESTABLISH_UPLINK</h2>
+       <div className="flex justify-center gap-6 mb-12">
+         {[
+           { icon: FileText, label: "EMAIL", val: "siti.anisa@mail.ugm.ac.id" },
+           { icon: Share2, label: "LINKEDIN", val: "linkedin.com/in/sitianisa" },
+           { icon: Activity, label: "GITHUB", val: "github.com/geositi" },
+         ].map((c, i) => (
+           <a key={i} href="#" className="flex flex-col items-center group">
+             <div className="p-4 bg-white/5 border border-white/10 rounded-full group-hover:border-cyan-500 group-hover:bg-cyan-500/10 transition-all">
+               <c.icon className="text-slate-400 group-hover:text-cyan-400" size={20} />
+             </div>
+             <span className="mt-2 text-[10px] font-mono text-slate-600 group-hover:text-cyan-500">{c.label}</span>
+           </a>
+         ))}
+       </div>
+       
+       {/* Easter Egg */}
+       <button 
+         onClick={() => alert("EASTER EGG UNLOCKED: \nCoordinate System: WGS 84 / UTM zone 49S \nConvergence: 0° 12' 44\" \n\nSiti is ready to map the future!")}
+         className="text-[10px] font-mono text-slate-800 hover:text-green-500 transition-colors cursor-help tracking-[0.5em]"
+       >
+         LAT: -7.770533 | LON: 110.377541
+       </button>
+       <div className="text-[9px] text-slate-800 mt-2">© 2026 GEODETIC SYSTEM. ALL RIGHTS RESERVED.</div>
+    </div>
+  </footer>
+);
+
+/**
+ * --- MAIN APP CONTAINER ---
+ */
+export default function App() {
+  const [systemState, setSystemState] = useState('LANDING'); // 'LANDING' | 'DASHBOARD'
+
+  return (
+    <div className="bg-[#050505] min-h-screen text-slate-200 font-sans selection:bg-cyan-500/30 selection:text-cyan-200 cursor-none overflow-x-hidden">
+      {/* Styles */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@300;400;700&family=Inter:wght@300;400;600&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .clip-path-slant { clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+        .transform-style-3d { transform-style: preserve-3d; }
+        
+        @keyframes grid-flow { from { background-position: 0 0; } to { background-position: 0 60px; } }
+        .animate-grid-flow { animation: grid-flow 3s linear infinite; }
+
+        @keyframes fade-in-right { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .animate-fade-in-right { animation: fade-in-right 1s ease-out forwards; }
+
+        @keyframes fade-in-left { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .animate-fade-in-left { animation: fade-in-left 1s ease-out forwards; }
+      `}</style>
+
+      {/* Global Elements */}
+      <ActiveGrid />
+      <SurveyCursor />
+
+      {/* View Logic */}
+      {systemState === 'LANDING' && (
+        <LandingPage onInitialize={() => setSystemState('DASHBOARD')} />
+      )}
+
+      {systemState === 'DASHBOARD' && (
+        <div className="animate-in fade-in zoom-in-95 duration-1000">
+          <HeroSection />
+          <AboutConsole />
+          <ProjectLayerManager />
+          <SkillRadar />
+          <Footer />
+          <CommModule /> {/* New Communications Module Added Here */}
+          
+          {/* Fixed HUD Elements */}
+          <div className="fixed top-6 left-6 z-50 text-[10px] font-mono text-cyan-500/50 flex flex-col gap-1 hidden lg:flex pointer-events-none">
+             <span>SYS: ONLINE</span>
+             <span>USER: GUEST</span>
+             <span>MODE: VIEW</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
